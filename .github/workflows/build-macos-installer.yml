@@ -1,17 +1,12 @@
 name: 📦🚀 Build Installer - MacOS Intel
 
 on:
-  workflow_dispatch:
   push:
-    # branches:
-    #   - 'long_lived/**'
-    #   - main
-    #   - 'release/**'
+    branches:
+      - main
     tags:
         - '**'
-  # pull_request:
-  #   branches:
-  #     - '**'
+  workflow_dispatch:
 
 concurrency:
   # SHA is added to the end if on `main` to let all main workflows run
@@ -182,60 +177,3 @@ jobs:
       run: |
         ls
         shasum -a 256 ${{ github.workspace }}/build_scripts/final_installer/Chives-${{ steps.version_number.outputs.CHIVES_INSTALLER_VERSION }}.dmg > ${{ github.workspace }}/build_scripts/final_installer/Chives-${{ steps.version_number.outputs.CHIVES_INSTALLER_VERSION }}.dmg.sha256
-
-    # - name: Upload to s3
-    #   if: steps.check_secrets.outputs.HAS_AWS_SECRET
-    #   env:
-    #     AWS_ACCESS_KEY_ID: ${{ secrets.INSTALLER_UPLOAD_KEY }}
-    #     AWS_SECRET_ACCESS_KEY: ${{ secrets.INSTALLER_UPLOAD_SECRET }}
-    #     AWS_REGION: us-west-2
-    #     CHIA_INSTALLER_VERSION: ${{ steps.version_number.outputs.CHIA_INSTALLER_VERSION }}
-    #   run: |
-    #     GIT_SHORT_HASH=$(echo "${GITHUB_SHA}" | cut -c1-8)
-    #     CHIA_DEV_BUILD=${CHIA_INSTALLER_VERSION}-$GIT_SHORT_HASH
-    #     echo "CHIA_DEV_BUILD=$CHIA_DEV_BUILD" >>$GITHUB_ENV
-    #     aws s3 cp ${{ github.workspace }}/build_scripts/final_installer/Chia-${{ steps.version_number.outputs.CHIA_INSTALLER_VERSION }}.dmg s3://download.chia.net/dev/Chia-${CHIA_DEV_BUILD}.dmg
-
-    # - name: Create torrent
-    #   if: startsWith(github.ref, 'refs/tags/')
-    #   run: |
-    #     py3createtorrent -f -t udp://tracker.opentrackr.org:1337/announce ${{ github.workspace }}/build_scripts/final_installer/Chia-${{ steps.version_number.outputs.CHIA_INSTALLER_VERSION }}.dmg -o ${{ github.workspace }}/build_scripts/final_installer/Chia-${{ steps.version_number.outputs.CHIA_INSTALLER_VERSION }}.dmg.torrent --webseed https://download.chia.net/install/Chia-${{ steps.version_number.outputs.CHIA_INSTALLER_VERSION }}.dmg
-    #     ls ${{ github.workspace }}/build_scripts/final_installer/
-
-    # - name: Upload Dev Installer
-    #   if: steps.check_secrets.outputs.HAS_AWS_SECRET && github.ref == 'refs/heads/main'
-    #   env:
-    #     CHIA_INSTALLER_VERSION: ${{ steps.version_number.outputs.CHIA_INSTALLER_VERSION }}
-    #     AWS_ACCESS_KEY_ID: ${{ secrets.INSTALLER_UPLOAD_KEY }}
-    #     AWS_SECRET_ACCESS_KEY: ${{ secrets.INSTALLER_UPLOAD_SECRET }}
-    #     AWS_REGION: us-west-2
-    #   run: |
-    #     aws s3 cp ${{ github.workspace }}/build_scripts/final_installer/Chia-${{ steps.version_number.outputs.CHIA_INSTALLER_VERSION }}.dmg s3://download.chia.net/latest-dev/Chia-intel_latest_dev.dmg
-    #     aws s3 cp ${{ github.workspace }}/build_scripts/final_installer/Chia-${{ steps.version_number.outputs.CHIA_INSTALLER_VERSION }}.dmg.sha256 s3://download.chia.net/latest-dev/Chia-intel_latest_dev.dmg.sha256
-
-    # - name: Upload Release Files
-    #   if: steps.check_secrets.outputs.HAS_AWS_SECRET && startsWith(github.ref, 'refs/tags/')
-    #   env:
-    #     AWS_ACCESS_KEY_ID: ${{ secrets.INSTALLER_UPLOAD_KEY }}
-    #     AWS_SECRET_ACCESS_KEY: ${{ secrets.INSTALLER_UPLOAD_SECRET }}
-    #     AWS_REGION: us-west-2
-    #   run: |
-    #     aws s3 cp ${{ github.workspace }}/build_scripts/final_installer/Chia-${{ steps.version_number.outputs.CHIA_INSTALLER_VERSION }}.dmg s3://download.chia.net/install/
-    #     aws s3 cp ${{ github.workspace }}/build_scripts/final_installer/Chia-${{ steps.version_number.outputs.CHIA_INSTALLER_VERSION }}.dmg.sha256 s3://download.chia.net/install/
-    #     aws s3 cp ${{ github.workspace }}/build_scripts/final_installer/Chia-${{ steps.version_number.outputs.CHIA_INSTALLER_VERSION }}.dmg.torrent s3://download.chia.net/torrents/
-
-    - name: Get tag name
-      if: startsWith(github.ref, 'refs/tags/')
-      id: tag-name
-      run: |
-        echo "::set-output name=TAG_NAME::$(echo ${{ github.ref }} | cut -d'/' -f 3)"
-        echo "::set-output name=REPO_NAME::$(echo ${{ github.repository }} | cut -d'/' -f 2)"
-
-    # - name: Mark installer complete
-    #   if: startsWith(github.ref, 'refs/tags/')
-    #   run: |
-    #     curl -s -XPOST -H "Authorization: Bearer ${{ secrets.GLUE_ACCESS_TOKEN }}" --data '{"chia_ref": "${{ steps.tag-name.outputs.TAG_NAME }}"}' ${{ secrets.GLUE_API_URL }}/api/v1/${{ steps.tag-name.outputs.REPO_NAME }}/${{ steps.tag-name.outputs.TAG_NAME }}/success/build-macos
-
-    - name: Remove working files to exclude from cache
-      run: |
-        rm -rf ./chives-blockchain-gui/packages/gui/daemon
