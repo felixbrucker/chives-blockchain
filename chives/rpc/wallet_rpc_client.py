@@ -87,10 +87,25 @@ class WalletRpcClient(RpcClient):
             request["type"] = wallet_type
         return (await self.fetch("get_wallets", request))["wallets"]
 
+    ##########################################################################################
+    # MasterNode
+    ##########################################################################################
+    
+    # MasterNode APIs
+    #async def masternode_mynode(self, wallet_id: str) -> Dict:
+    #    return (await self.fetch("masternode_mynode", {"wallet_id": wallet_id}))
+        
+    # MasterNode APIs
+    #async def masternode_staking_client(self, wallet_id: str, stakingPeriod: str, stakingAmount: str) -> Dict:
+    #    return (await self.fetch("masternode_staking", {"wallet_id": wallet_id,"year": stakingPeriod,"amount": stakingAmount}))
+    
+    ##########################################################################################
+    # Wallet
+    ##########################################################################################
     # Wallet APIs
     async def get_wallet_balance(self, wallet_id: str) -> Dict:
         return (await self.fetch("get_wallet_balance", {"wallet_id": wallet_id}))["wallet_balance"]
-
+    
     async def get_transaction(self, wallet_id: str, transaction_id: bytes32) -> TransactionRecord:
         res = await self.fetch(
             "get_transaction",
@@ -139,6 +154,9 @@ class WalletRpcClient(RpcClient):
     async def get_next_address(self, wallet_id: str, new_address: bool) -> str:
         return (await self.fetch("get_next_address", {"wallet_id": wallet_id, "new_address": new_address}))["address"]
 
+    async def get_address_by_index(self, index: int) -> str:
+        return (await self.fetch("get_address_by_index", {"index": index}))
+    
     async def send_transaction(
         self,
         wallet_id: str,

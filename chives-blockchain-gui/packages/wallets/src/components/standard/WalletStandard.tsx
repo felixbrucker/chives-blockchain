@@ -10,7 +10,6 @@ import WalletStandardCards from './WalletStandardCards';
 import WalletReceiveAddress from '../WalletReceiveAddress';
 import WalletSend from '../WalletSend';
 import WalletHeader from '../WalletHeader';
-
 type StandardWalletProps = {
   walletId: number;
 };
@@ -22,6 +21,8 @@ export default function StandardWallet(props: StandardWalletProps) {
   const [selectedTab, setSelectedTab] = useState<
     'summary' | 'send' | 'receive'
   >('summary');
+
+  console.log("walletId===StandardWallet=========", walletId)
 
   function handleCreateOffer() {
     navigate('/dashboard/offers/create', {
@@ -70,12 +71,6 @@ export default function StandardWallet(props: StandardWalletProps) {
       <Box display={selectedTab === 'receive' ? 'block' : 'none'}>
         <WalletReceiveAddress walletId={walletId} />
       </Box>
-
-      {/*
-      {showDebugInformation && (
-        <WalletConnections walletId={walletId} />
-      )}
-      */}
     </Flex>
   );
 }

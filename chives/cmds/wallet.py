@@ -180,6 +180,187 @@ def send_cmd(
     asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, send))
 
 
+# ##############################################################################
+#Merge many little amount coins to one large amount coin for MasterNode
+@wallet_cmd.command("masternode_mergecoin_by_fullnode", short_help="Merge little amount coin to a large coin. To sure one transaction can finish staking process.")
+@click.option(
+    "-wp",
+    "--wallet-rpc-port",
+    help="Set the port where the Wallet is hosting the RPC interface. See the rpc_port under wallet in config.yaml",
+    type=int,
+    default=None,
+)
+@click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
+def masternode_mergecoin_by_fullnode_cmd(
+    wallet_rpc_port: Optional[int],
+    fingerprint: int,
+) -> None:
+    extra_params = {}
+    import asyncio
+    from .wallet_funcs import execute_with_wallet, masternode_mergecoin_by_fullnode
+    asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, masternode_mergecoin_by_fullnode))
+
+#Merge many little amount coins to one large amount coin for MasterNode
+@wallet_cmd.command("masternode_merge", short_help="Merge little amount coin to a large coin. To sure one transaction can finish staking process.")
+@click.option(
+    "-wp",
+    "--wallet-rpc-port",
+    help="Set the port where the Wallet is hosting the RPC interface. See the rpc_port under wallet in config.yaml",
+    type=int,
+    default=None,
+)
+@click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
+def masternode_merge_cmd(
+    wallet_rpc_port: Optional[int],
+    fingerprint: int,
+) -> None:
+    extra_params = {}
+    import asyncio
+    from .wallet_funcs import execute_with_wallet, masternode_merge
+    asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, masternode_merge))
+
+#Begin staking for MasterNode
+@wallet_cmd.command("masternode_staking", short_help="Begin staking coins for MasterNode. Your coins will stake in a smart coin, can cancel only after some block height.")
+@click.option("-y", "--year", help="pls input 0, 1 or 2. 1: one year, 2: two year, 0: just for test.", type=int, default=0)
+@click.option("-a", "--amount", help="pls input 100000, 300000, 500000, 1000000. Other amount just for test.", type=int, default=100000)
+@click.option(
+    "-wp",
+    "--wallet-rpc-port",
+    help="Set the port where the Wallet is hosting the RPC interface. See the rpc_port under wallet in config.yaml",
+    type=int,
+    default=None,
+)
+@click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
+def masternode_staking_cmd(
+    year: int,
+    amount: int,
+    wallet_rpc_port: Optional[int],
+    fingerprint: int,
+) -> None:
+    args = {}
+    args['year'] = year
+    args['amount'] = amount
+    import asyncio
+    from .wallet_funcs import execute_with_wallet, masternode_staking
+    asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, args, masternode_staking))
+
+#Cancel staking for MasterNode
+@wallet_cmd.command("masternode_cancel", short_help="Begin cancel staking coin for MasterNode. Once cancel, your coins will back to your wallet.")
+@click.option(
+    "-wp",
+    "--wallet-rpc-port",
+    help="Set the port where the Wallet is hosting the RPC interface. See the rpc_port under wallet in config.yaml",
+    type=int,
+    default=None,
+)
+@click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
+def masternode_cancel_cmd(
+    wallet_rpc_port: Optional[int],
+    fingerprint: int,
+) -> None:
+    extra_params = {}
+    import asyncio
+    from .wallet_funcs import execute_with_wallet, masternode_cancel
+    asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, masternode_cancel))
+
+#show the staking status for MasterNode
+@wallet_cmd.command("masternode_mynode", short_help="show your masternode information.")
+@click.option(
+    "-wp",
+    "--wallet-rpc-port",
+    help="Set the port where the Wallet is hosting the RPC interface. See the rpc_port under wallet in config.yaml",
+    type=int,
+    default=None,
+)
+@click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
+def masternode_mynode_cmd(
+    wallet_rpc_port: Optional[int],
+    fingerprint: int,
+) -> None:
+    extra_params = {}
+    import asyncio
+    from .wallet_funcs import execute_with_wallet, masternode_mynode
+    asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, masternode_mynode))
+
+
+#Initial all MasterNode on the blockchain
+@wallet_cmd.command("masternode_init", short_help="Syncing master nodes data from blockchain.")
+@click.option(
+    "-wp",
+    "--wallet-rpc-port",
+    help="Set the port where the Wallet is hosting the RPC interface. See the rpc_port under wallet in config.yaml",
+    type=int,
+    default=None,
+)
+@click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
+def masternode_init_cmd(
+    wallet_rpc_port: Optional[int],
+    fingerprint: int,
+) -> None:
+    extra_params = {}
+    import asyncio
+    from .wallet_funcs import execute_with_wallet, masternode_init
+    asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, masternode_init))
+
+#list all MasterNode on the localhost database
+@wallet_cmd.command("masternode_summary", short_help="List masternode summary from blockchain.")
+@click.option(
+    "-wp",
+    "--wallet-rpc-port",
+    help="Set the port where the Wallet is hosting the RPC interface. See the rpc_port under wallet in config.yaml",
+    type=int,
+    default=None,
+)
+@click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
+def masternode_summary_cmd(
+    wallet_rpc_port: Optional[int],
+    fingerprint: int,
+) -> None:
+    extra_params = {}
+    import asyncio
+    from .wallet_funcs import execute_with_wallet, masternode_summary
+    asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, masternode_summary))
+
+
+#list all MasterNode on the localhost database
+@wallet_cmd.command("masternode_list", short_help="List all the masternodes from blockchain.")
+@click.option(
+    "-wp",
+    "--wallet-rpc-port",
+    help="Set the port where the Wallet is hosting the RPC interface. See the rpc_port under wallet in config.yaml",
+    type=int,
+    default=None,
+)
+@click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
+def masternode_list_cmd(
+    wallet_rpc_port: Optional[int],
+    fingerprint: int,
+) -> None:
+    extra_params = {}
+    import asyncio
+    from .wallet_funcs import execute_with_wallet, masternode_list
+    asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, masternode_list))
+
+#list all MasterNode on the localhost database
+@wallet_cmd.command("masternode_register", short_help="register your masternode into blockchain.")
+@click.option(
+    "-wp",
+    "--wallet-rpc-port",
+    help="Set the port where the Wallet is hosting the RPC interface. See the rpc_port under wallet in config.yaml",
+    type=int,
+    default=None,
+)
+@click.option("-f", "--fingerprint", help="Set the fingerprint to specify which wallet to use", type=int)
+def masternode_register_cmd(
+    wallet_rpc_port: Optional[int],
+    fingerprint: int,
+) -> None:
+    extra_params = {}
+    import asyncio
+    from .wallet_funcs import execute_with_wallet, masternode_register
+    asyncio.run(execute_with_wallet(wallet_rpc_port, fingerprint, extra_params, masternode_register))
+# ##############################################################################
+
 @wallet_cmd.command("show", short_help="Show wallet information")
 @click.option(
     "-wp",
@@ -199,7 +380,6 @@ def send_cmd(
 def show_cmd(wallet_rpc_port: Optional[int], fingerprint: int, wallet_type: Optional[str]) -> None:
     import asyncio
     from .wallet_funcs import execute_with_wallet, print_balances
-
     args: Dict[str, Any] = {}
     if wallet_type is not None:
         args["type"] = WalletType[wallet_type.upper()]

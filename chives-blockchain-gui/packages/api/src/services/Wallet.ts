@@ -221,10 +221,99 @@ export default class Wallet extends Service {
     });
   }
 
+  async getMasterNodeLists(
+    walletId: number,
+    start?: number,
+    end?: number,
+    sortKey?: 'CONFIRMED_AT_HEIGHT' | 'RELEVANCE',
+    reverse?: boolean
+  ) {
+    return this.command('masternode_list', {
+      walletId,
+      start,
+      end,
+      sortKey,
+      reverse,
+    });
+  }
+
+  async getMasterNodeListsCount(walletId: number) {
+    return this.command('masternode_list_count', {
+      walletId,
+    });
+  }
+
+  async getMasterNodeReceivedLists(
+    walletId: number,
+    start?: number,
+    end?: number,
+    sortKey?: 'CONFIRMED_AT_HEIGHT' | 'RELEVANCE',
+    reverse?: boolean
+  ) {
+    return this.command('masternode_received_transactions', {
+      walletId,
+      start,
+      end,
+      sortKey,
+      reverse,
+    });
+  }
+
+  async getMasterNodeReceivedListsCount(walletId: number) {
+    return this.command('masternode_received_transaction_count', {
+      walletId,
+    });
+  }
+
+  async getMasterNodeMyCard(walletId: number) {
+    return this.command('masternode_mynode', {
+      walletId,
+    });
+  }
+
+  async getMasterNodeSummary(walletId: number) {
+    return this.command('masternode_summary', {
+      walletId,
+    });
+  }
+
   async getNextAddress(walletId: number, newAddress: boolean) {
     return this.command('get_next_address', {
       walletId,
       newAddress,
+    });
+  }
+
+  async takeMasterNodeStaking(walletId: number, stakingPeriod: number, stakingAmount: number) {
+    //console.log("api takeMasterNodeStaking *********************************")
+    //console.log("walletId",walletId)
+    //console.log("stakingPeriod",stakingPeriod)
+    //console.log("stakingAmount",stakingAmount)
+    if(stakingPeriod==undefined) {
+      stakingPeriod = 0;
+    }
+    if(stakingAmount==undefined) {
+      stakingAmount = 100000;
+    }
+    console.log("stakingPeriod",stakingPeriod)
+    console.log("stakingAmount",stakingAmount)
+    return this.command('masternode_staking', {
+      walletId: walletId,
+      year:stakingPeriod,
+      amount:stakingAmount,
+      wallet_id: walletId,
+    });
+  }
+
+  async takeMasterNodeRegister(walletId: number) {
+    return this.command('masternode_register', {
+      walletId,
+    });
+  }
+
+  async takeMasterNodeCancel(walletId: number) {
+    return this.command('masternode_cancel', {
+      walletId,
     });
   }
 

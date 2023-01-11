@@ -105,6 +105,9 @@ kwargs = dict(
         "chives.types.blockchain_format",
         "chives.types",
         "chives.util",
+        "chives.masternode",
+        "chives.masternode.clsp",
+        "chives.masternode.include",
         "chives.wallet",
         "chives.wallet.puzzles",
         "chives.wallet.rl_wallet",
@@ -131,6 +134,7 @@ kwargs = dict(
             "chives_timelord = chives.server.start_timelord:main",
             "chives_timelord_launcher = chives.timelord.timelord_launcher:main",
             "chives_full_node_simulator = chives.simulator.start_simulator:main",
+            "chives_masternode = chives.masternode.start_masternode:main",
         ]
     },
     package_data={

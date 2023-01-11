@@ -61,16 +61,6 @@ export default function WalletHeader(props: StandardWalletProps) {
           </Tabs>
         </Flex>
         <Flex gap={1} alignItems="center">
-          {/*
-          <Flex alignItems="center">
-            <Typography variant="body1" color="textSecondary">
-              <Trans>Status:</Trans>
-            </Typography>
-            &nbsp;
-            <WalletStatus height={showDebugInformation} />
-          </Flex>
-          */}
-
           <DropdownActions label={<Trans>Actions</Trans>} variant="outlined">
             {({ onClose }) => (
               <>

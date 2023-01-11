@@ -27,6 +27,8 @@ from chives.wallet.trading.trade_status import TradeStatus
 from chives.wallet.transaction_record import TransactionRecord
 from chives.wallet.util.transaction_type import TransactionType
 from chives.wallet.util.wallet_types import WalletType
+from chives.rpc.full_node_rpc_client import FullNodeRpcClient
+#
 
 CATNameResolver = Callable[[bytes32], Awaitable[Optional[Tuple[Optional[uint32], str]]]]
 
@@ -245,6 +247,108 @@ async def send(args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> 
     print("Transaction not yet submitted to nodes")
     print(f"Do 'chives wallet get_transaction -f {fingerprint} -tx 0x{tx_id}' to get status")
 
+# ##################################################################################
+from chives.masternode.masternode_manager import MasterNodeManager
+
+async def masternode_merge(args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
+    manager = MasterNodeManager()
+    await manager.connect()
+    checkSyncedStatus,checkSyncedStatusText,fingerprint = await manager.checkSyncedStatus()
+    await manager.chooseWallet(fingerprint)
+    for item in checkSyncedStatusText:
+        print(item)
+    if checkSyncedStatus == 2: 
+        await manager.masternode_merge(args, wallet_client, fingerprint)
+    await manager.close()
+
+async def masternode_mergecoin_by_fullnode(args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
+    manager = MasterNodeManager()
+    await manager.connect()
+    checkSyncedStatus,checkSyncedStatusText,fingerprint = await manager.checkSyncedStatus()
+    getWalletPk = await manager.getWalletPk(fingerprint)
+    if getWalletPk is not False:
+        await manager.masternode_mergecoin_by_fullnode(0,getWalletPk)
+    await manager.close()
+
+async def masternode_staking(args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
+    manager = MasterNodeManager()
+    await manager.connect()
+    checkSyncedStatus,checkSyncedStatusText,fingerprint = await manager.checkSyncedStatus()
+    await manager.chooseWallet(fingerprint)
+    for item in checkSyncedStatusText:
+        print(item)
+    if checkSyncedStatus == 2: 
+        await manager.masternode_staking(args, wallet_client, fingerprint)
+    await manager.close()
+
+async def masternode_cancel(args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
+    manager = MasterNodeManager()
+    await manager.connect()
+    checkSyncedStatus,checkSyncedStatusText,fingerprint = await manager.checkSyncedStatus()
+    await manager.chooseWallet(fingerprint)
+    for item in checkSyncedStatusText:
+        print(item)
+    if checkSyncedStatus == 2: 
+        await manager.masternode_cancel(args, wallet_client, fingerprint)
+    await manager.close()
+
+async def masternode_mynode(args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
+    manager = MasterNodeManager()
+    await manager.connect()
+    checkSyncedStatus,checkSyncedStatusText,fingerprint = await manager.checkSyncedStatus()
+    await manager.chooseWallet(fingerprint)
+    for item in checkSyncedStatusText:
+        print(item)
+    if checkSyncedStatus == 2: 
+        await manager.masternode_mynode(args, wallet_client, fingerprint)
+    await manager.close()
+
+async def masternode_init(args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
+    manager = MasterNodeManager()
+    await manager.connect()
+    checkSyncedStatus,checkSyncedStatusText,fingerprint = await manager.checkSyncedStatus()
+    await manager.chooseWallet(fingerprint)
+    for item in checkSyncedStatusText:
+        print(item)
+    if checkSyncedStatus == 2: 
+        await manager.sync_masternode_from_blockchain()
+    await manager.close()
+
+async def masternode_summary(args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
+    manager = MasterNodeManager()
+    await manager.connect()
+    checkSyncedStatus,checkSyncedStatusText,fingerprint = await manager.checkSyncedStatus()
+    await manager.chooseWallet(fingerprint)
+    for item in checkSyncedStatusText:
+        print(item)
+    if checkSyncedStatus == 2: 
+        await manager.masternode_summary(args, wallet_client, fingerprint)
+    await manager.close()
+    
+async def masternode_list(args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
+    manager = MasterNodeManager()
+    await manager.connect()
+    checkSyncedStatus,checkSyncedStatusText,fingerprint = await manager.checkSyncedStatus()
+    await manager.chooseWallet(fingerprint)
+    for item in checkSyncedStatusText:
+        print(item)
+    if checkSyncedStatus == 2: 
+        await manager.masternode_list(args, wallet_client, fingerprint)
+    await manager.close()
+    
+async def masternode_register(args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
+    manager = MasterNodeManager()
+    await manager.connect()
+    checkSyncedStatus,checkSyncedStatusText,fingerprint = await manager.checkSyncedStatus()
+    await manager.chooseWallet(fingerprint)
+    for item in checkSyncedStatusText:
+        print(item)
+    if checkSyncedStatus == 2: 
+        await manager.masternode_register(args, wallet_client, fingerprint)
+    await manager.close()
+
+        
+# ##################################################################################
 
 async def get_address(args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
     wallet_id = args["id"]
@@ -668,6 +772,8 @@ async def print_balances(args: dict, wallet_client: WalletRpcClient, fingerprint
             elif len(asset_id) > 0:
                 print(f"{indent}{'-Asset ID:'.ljust(23)} {asset_id}")
             print(f"{indent}{'-Wallet ID:'.ljust(23)} {wallet_id}")
+
+    await masternode_mynode(args, wallet_client, fingerprint)
 
     print(" ")
     trusted_peers: Dict = config["wallet"].get("trusted_peers", {})

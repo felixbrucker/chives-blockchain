@@ -753,18 +753,7 @@ def validate_unfinished_header_block(
             != constants.GENESIS_PRE_FARM_FARMER_PUZZLE_HASH
         ):
             return None, ValidationError(Err.INVALID_PREFARM)
-        if (
-            header_block.foliage.foliage_block_data.community_reward_puzzle_hash
-            != constants.GENESIS_PRE_FARM_COMMUNITY_PUZZLE_HASH
-        ):
-            return None, ValidationError(Err.INVALID_COMMUNITY)
     else:
-        #20A. Check Community Reward Puzzle Hash
-        if (
-            header_block.foliage.foliage_block_data.community_reward_puzzle_hash
-            != constants.GENESIS_PRE_FARM_COMMUNITY_PUZZLE_HASH
-        ):
-            return None, ValidationError(Err.INVALID_COMMUNITY)
         # 20b. If pospace has a pool pk, heck pool target signature. Should not check this for genesis block.
         if header_block.reward_chain_block.proof_of_space.pool_public_key is not None:
             assert header_block.reward_chain_block.proof_of_space.pool_contract_puzzle_hash is None
@@ -898,6 +887,19 @@ def validate_finished_header_block(
         if header_block.weight != prev_b.weight + expected_difficulty:
             log.error(f"INVALID WEIGHT: {header_block} {prev_b} {expected_difficulty}")
             return None, ValidationError(Err.INVALID_WEIGHT)
+        
+        # Stage 3 MasterNode
+        if header_block.height > 2600000:
+            GENESIS_PRE_FARM_COMMUNITY_PUZZLE_HASH = bytes.fromhex('715def9fe21c793076f4e5d13b18326822103f26e459ec76e8b4850f38bddb3c')
+        else:
+            GENESIS_PRE_FARM_COMMUNITY_PUZZLE_HASH = constants.GENESIS_PRE_FARM_COMMUNITY_PUZZLE_HASH
+        #20A. Check Community Reward Puzzle Hash
+        if (
+            header_block.foliage.foliage_block_data.community_reward_puzzle_hash
+            != GENESIS_PRE_FARM_COMMUNITY_PUZZLE_HASH
+        ):
+            return None, ValidationError(Err.INVALID_COMMUNITY)
+
     else:
         # 27b. Check genesis block height, weight, and prev block hash
         if header_block.height != uint32(0):

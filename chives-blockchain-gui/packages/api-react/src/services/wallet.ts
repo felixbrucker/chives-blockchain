@@ -42,10 +42,16 @@ const apiWithTag = api.enhanceEndpoints({
     'PoolWalletStatus',
     'TransactionCount',
     'Transactions',
+    'MasterNodeListsCount',
+    'MasterNodeLists',
+    'MasterNodeReceivedListsCount',
+    'MasterNodeReceivedLists',
     'WalletBalance',
     'WalletConnections',
     'Wallets',
     'DerivationIndex',
+    'MasterNode',
+    'MasterNodeMyCard',
   ],
 });
 
@@ -785,6 +791,215 @@ export const walletApi = apiWithTag.injectEndpoints({
       ]),
     }),
 
+    getMasterNodeLists: build.query<
+      Transaction[],
+      {
+        walletId: number;
+        start?: number;
+        end?: number;
+        sortKey?: 'CONFIRMED_AT_HEIGHT' | 'RELEVANCE';
+        reverse?: boolean;
+      }
+    >({
+      query: ({ walletId, start, end, sortKey, reverse }) => ({
+        command: 'getMasterNodeLists',
+        service: Wallet,
+        args: [walletId, start, end, sortKey, reverse],
+      }),
+      transformResponse: (response: any) => response?.transactions,
+      providesTags(result) {
+        return result
+          ? [
+              ...result.map(
+                ({ name }) => ({ type: 'Transactions', id: name } as const)
+              ),
+              { type: 'Transactions', id: 'LIST' },
+            ]
+          : [{ type: 'Transactions', id: 'LIST' }];
+      },
+      onCacheEntryAdded: onCacheEntryAddedInvalidate(baseQuery, [
+        {
+          command: 'onCoinAdded',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeLists,
+        },
+        {
+          command: 'onCoinRemoved',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeLists,
+        },
+        {
+          command: 'onPendingTransaction',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeLists,
+        },
+      ]),
+    }),
+
+    getMasterNodeListsCount: build.query<
+      number,
+      {
+        walletId: number;
+      }
+    >({
+      query: ({ walletId }) => ({
+        command: 'getMasterNodeListsCount',
+        service: Wallet,
+        args: [walletId],
+      }),
+      transformResponse: (response: any) => response?.count,
+      providesTags: (result, _error, { walletId }) =>
+        result ? [{ type: 'TransactionCount', id: walletId }] : [],
+      onCacheEntryAdded: onCacheEntryAddedInvalidate(baseQuery, [
+        {
+          command: 'onCoinAdded',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeListsCount,
+        },
+        {
+          command: 'onCoinRemoved',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeListsCount,
+        },
+        {
+          command: 'onPendingTransaction',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeListsCount,
+        },
+      ]),
+    }),
+
+    getMasterNodeReceivedLists: build.query<
+      Transaction[],
+      {
+        walletId: number;
+        start?: number;
+        end?: number;
+        sortKey?: 'CONFIRMED_AT_HEIGHT' | 'RELEVANCE';
+        reverse?: boolean;
+      }
+    >({
+      query: ({ walletId, start, end, sortKey, reverse }) => ({
+        command: 'getMasterNodeReceivedLists',
+        service: Wallet,
+        args: [walletId, start, end, sortKey, reverse],
+      }),
+      transformResponse: (response: any) => response?.transactions,
+      providesTags(result) {
+        return result
+          ? [
+              ...result.map(
+                ({ name }) => ({ type: 'Transactions', id: name } as const)
+              ),
+              { type: 'Transactions', id: 'LIST' },
+            ]
+          : [{ type: 'Transactions', id: 'LIST' }];
+      },
+      onCacheEntryAdded: onCacheEntryAddedInvalidate(baseQuery, [
+        {
+          command: 'onCoinAdded',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeLists,
+        },
+        {
+          command: 'onCoinRemoved',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeLists,
+        },
+        {
+          command: 'onPendingTransaction',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeLists,
+        },
+      ]),
+    }),
+
+    getMasterNodeReceivedListsCount: build.query<
+      number,
+      {
+        walletId: number;
+      }
+    >({
+      query: ({ walletId }) => ({
+        command: 'getMasterNodeReceivedListsCount',
+        service: Wallet,
+        args: [walletId],
+      }),
+      transformResponse: (response: any) => response?.count,
+      providesTags: (result, _error, { walletId }) =>
+        result ? [{ type: 'TransactionCount', id: walletId }] : [],
+      onCacheEntryAdded: onCacheEntryAddedInvalidate(baseQuery, [
+        {
+          command: 'onCoinAdded',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeListsCount,
+        },
+        {
+          command: 'onCoinRemoved',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeListsCount,
+        },
+        {
+          command: 'onPendingTransaction',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeListsCount,
+        },
+      ]),
+    }),
+
+    getMasterNodeMyCard: build.query<
+      string,
+      {
+        walletId: number;
+      }
+    >({
+      query: ({ walletId }) => ({
+        command: 'getMasterNodeMyCard',
+        service: Wallet,
+        args: [walletId, false],
+      }),
+      keepUnusedDataFor: 5,
+      transformResponse: (response: any) => response?.result,
+      providesTags: (result, _error, { walletId }) =>
+        result ? [{ type: 'MasterNode', id: walletId }] : [],
+      onCacheEntryAdded: onCacheEntryAddedInvalidate(baseQuery, [
+        {
+          command: 'onCoinAdded',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeMyCard,
+        },
+        {
+          command: 'onCoinRemoved',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeMyCard,
+        },
+        {
+          command: 'onPendingTransaction',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeMyCard,
+        },
+        {
+          command: 'onNewBlock',
+          service: Wallet,
+          endpoint: () => walletApi.endpoints.getMasterNodeMyCard,
+        },
+      ]),
+    }),
+
+    getMasterNodeSummary: build.query<
+      string,
+      {
+        walletId: number;
+      }
+    >({
+      query: ({ walletId }) => ({
+        command: 'getMasterNodeSummary',
+        service: Wallet,
+        args: [walletId, false],
+      }),
+      transformResponse: (response: any) => response?.result,
+    }),
+
     getCurrentAddress: build.query<
       string,
       {
@@ -799,6 +1014,56 @@ export const walletApi = apiWithTag.injectEndpoints({
       transformResponse: (response: any) => response?.address,
       providesTags: (result, _error, { walletId }) =>
         result ? [{ type: 'Address', id: walletId }] : [],
+    }),
+
+    takeMasterNodeStaking: build.mutation<
+      string,
+      {
+        walletId: number;
+        stakingPeriod: number;
+        stakingAmount: number;
+      }
+    >({
+      query: ({ walletId, stakingPeriod, stakingAmount }) => ({
+        command: 'takeMasterNodeStaking',
+        service: Wallet,
+        args: [walletId, stakingPeriod, stakingAmount],
+      }),
+      transformResponse: (response: any) => response,
+      invalidatesTags: (result, _error, { walletId }) =>
+        result ? [{ type: 'MasterNode', id: walletId }] : [],
+    }),
+
+    takeMasterNodeRegister: build.mutation<
+      string,
+      {
+        walletId: number;
+      }
+    >({
+      query: ({ walletId }) => ({
+        command: 'takeMasterNodeRegister',
+        service: Wallet,
+        args: [walletId],
+      }),
+      transformResponse: (response: any) => response,
+      invalidatesTags: (result, _error, { walletId }) =>
+        result ? [{ type: 'MasterNode', id: walletId }] : [],
+    }),
+
+    takeMasterNodeCancel: build.mutation<
+      string,
+      {
+        walletId: number;
+      }
+    >({
+      query: ({ walletId }) => ({
+        command: 'takeMasterNodeCancel',
+        service: Wallet,
+        args: [walletId],
+      }),
+      transformResponse: (response: any) => response,
+      invalidatesTags: (result, _error, { walletId }) =>
+        result ? [{ type: 'MasterNode', id: walletId }] : [],
     }),
 
     getNextAddress: build.mutation<
@@ -2160,8 +2425,17 @@ export const {
   useGetPrivateKeyQuery,
   useGetTransactionsQuery,
   useGetTransactionsCountQuery,
+  useGetMasterNodeListsQuery,
+  useGetMasterNodeListsCountQuery,
+  useGetMasterNodeReceivedListsQuery,
+  useGetMasterNodeReceivedListsCountQuery,
+  useGetMasterNodeMyCardQuery,
+  useGetMasterNodeSummaryQuery,
   useGetCurrentAddressQuery,
   useGetNextAddressMutation,
+  useTakeMasterNodeStakingMutation,
+  useTakeMasterNodeRegisterMutation,
+  useTakeMasterNodeCancelMutation,
   useFarmBlockMutation,
   useGetHeightInfoQuery,
   useGetNetworkInfoQuery,
