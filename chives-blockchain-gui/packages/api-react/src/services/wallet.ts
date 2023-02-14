@@ -53,6 +53,7 @@ const apiWithTag = api.enhanceEndpoints({
     'MasterNode',
     'MasterNodeMyCard',
     'MasterNodeSummary',
+    'MasterNodeSyncingData',
   ],
 });
 
@@ -820,17 +821,7 @@ export const walletApi = apiWithTag.injectEndpoints({
       },
       onCacheEntryAdded: onCacheEntryAddedInvalidate(baseQuery, [
         {
-          command: 'onCoinAdded',
-          service: Wallet,
-          endpoint: () => walletApi.endpoints.getMasterNodeLists,
-        },
-        {
-          command: 'onCoinRemoved',
-          service: Wallet,
-          endpoint: () => walletApi.endpoints.getMasterNodeLists,
-        },
-        {
-          command: 'onPendingTransaction',
+          command: 'onNewBlock',
           service: Wallet,
           endpoint: () => walletApi.endpoints.getMasterNodeLists,
         },
@@ -1003,26 +994,34 @@ export const walletApi = apiWithTag.injectEndpoints({
         result ? [{ type: 'MasterNodeSummary', id: walletId }] : [],
       onCacheEntryAdded: onCacheEntryAddedInvalidate(baseQuery, [
         {
-          command: 'onCoinAdded',
-          service: Wallet,
-          endpoint: () => walletApi.endpoints.getMasterNodeSummary,
-        },
-        {
-          command: 'onCoinRemoved',
-          service: Wallet,
-          endpoint: () => walletApi.endpoints.getMasterNodeSummary,
-        },
-        {
-          command: 'onPendingTransaction',
-          service: Wallet,
-          endpoint: () => walletApi.endpoints.getMasterNodeSummary,
-        },
-        {
           command: 'onNewBlock',
           service: Wallet,
           endpoint: () => walletApi.endpoints.getMasterNodeSummary,
         },
       ]),
+    }),
+
+    getMasterNodeSyncingData: build.query<
+      string,
+      {
+        walletId: number;
+      }
+    >({
+      query: ({ walletId }) => ({
+        command: 'getMasterNodeSyncingData',
+        service: Wallet,
+        args: [walletId, false],
+      }),
+      transformResponse: (response: any) => response?.result,
+      providesTags: (result, _error, { walletId }) =>
+        result ? [{ type: 'MasterNodeSyncingData', id: walletId }] : [],
+        onCacheEntryAdded: onCacheEntryAddedInvalidate(baseQuery, [
+          {
+            command: 'onNewBlock',
+            service: Wallet,
+            endpoint: () => walletApi.endpoints.getMasterNodeSummary,
+          },
+        ]),
     }),
 
     getCurrentAddress: build.query<
@@ -2456,6 +2455,7 @@ export const {
   useGetMasterNodeReceivedListsCountQuery,
   useGetMasterNodeMyCardQuery,
   useGetMasterNodeSummaryQuery,
+  useGetMasterNodeSyncingDataQuery,
   useGetCurrentAddressQuery,
   useGetNextAddressMutation,
   useTakeMasterNodeStakingMutation,

@@ -13,8 +13,8 @@ type Props = {
 export default function MasterNodeCardPendingChange(props: Props) {
   const { walletId, tooltip } = props;
 
-  const { 
-    data: walletBalance, 
+  const {
+    data: walletBalance,
     isLoading: isLoadingWalletBalance,
     error,
   } = useGetWalletBalanceQuery({

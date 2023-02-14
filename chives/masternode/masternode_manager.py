@@ -385,7 +385,7 @@ class MasterNodeManager:
         StakingData['StakingCoinFirstTime'] = str(STAKING_COIN[0].coin.name())
         StakingData['NodeName'] = blockchain_state["node_id"]
         IsStakingCoin = False
-        all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(decode_puzzle_hash(STAKING_ADDRESS), False, 160000)
+        all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(decode_puzzle_hash(STAKING_ADDRESS), False, 2400000)
         for coin_record in all_staking_coins:
             StakingAmount = coin_record.coin.amount
             if int(coin_record.coin.amount / self.mojo_per_unit) in self.allow_staking_amount:
@@ -453,10 +453,9 @@ class MasterNodeManager:
         print("-" * 64)
         if counter > 0:
             print(f"ID:  {counter}")
-        print(f"MasterNodeID:    {nft['launcher_id'].hex()}")
-        print(f"Chialisp:        {str(nft['nft_data'][0].decode('utf-8'))}")
-        print(f"Height:          {nft['launcher_rec'].spent_block_index}")
-        print(f"CreateTime:      {nft['launcher_rec'].timestamp}")
+        print(f"MasterNodeID:    {nft['launcher_id']}")
+        print(f"Height:          {nft['StakingData']['StakingHeight']}")
+        print(f"CreateTime:      {nft['StakingData']['timestamp']}")
         StakingData = nft['StakingData']
         StakingAmount = StakingData['StakingAmount']
         print(f"StakingAddress:  {StakingData['StakingAddress']}")
@@ -467,11 +466,11 @@ class MasterNodeManager:
         if 'StakingPeriod' in StakingData:
             print(f"StakingPeriod:   {StakingData['StakingPeriod']} Year")
             if int(StakingData['StakingPeriod']) == 0:
-                print(f"Can Cancel Height:  {int(nft['launcher_rec'].spent_block_index)+10}")
+                print(f"Can Cancel Height:  {int(nft['StakingData']['StakingHeight'])+10}")
             if int(StakingData['StakingPeriod']) == 1:
-                print(f"Can Cancel Height:  {int(nft['launcher_rec'].spent_block_index)+1681920}")
+                print(f"Can Cancel Height:  {int(nft['StakingData']['StakingHeight'])+1681920}")
             if int(StakingData['StakingPeriod']) == 2:
-                print(f"Can Cancel Height:  {int(nft['launcher_rec'].spent_block_index)+3363840}")
+                print(f"Can Cancel Height:  {int(nft['StakingData']['StakingHeight'])+3363840}")
         else:
             print(f"StakingPeriod:   For test (10 minutes)")
 
@@ -482,10 +481,9 @@ class MasterNodeManager:
     def json_masternode(self, nft, counter):
         json_masternode = {}
         json_masternode['counter'] = counter
-        json_masternode['MasterNodeType'] = str(nft['nft_data'][0].decode('utf-8'))
-        json_masternode['MasterNodeID'] = nft['launcher_id'].hex()
-        json_masternode['StakingHeight'] = nft['launcher_rec'].spent_block_index
-        json_masternode['CreateTime'] = nft['launcher_rec'].timestamp
+        json_masternode['MasterNodeID'] = nft['launcher_id']
+        json_masternode['StakingHeight'] = nft['StakingData']['StakingHeight']
+        json_masternode['CreateTime'] = nft['StakingData']['timestamp']
         StakingData = nft['StakingData']
         StakingAmount = StakingData['StakingAmount']
         # json_masternode['StakingData'] = StakingData
@@ -496,11 +494,11 @@ class MasterNodeManager:
         else:
             StakingData['StakingAmount'] = 0
         if int(StakingData['StakingPeriod']) == 0:
-            json_masternode['StakingCanCancelHeight'] = int(nft['launcher_rec'].spent_block_index) + 10
+            json_masternode['StakingCanCancelHeight'] = int(nft['StakingData']['StakingHeight']) + 10
         if int(StakingData['StakingPeriod']) == 1:
-            json_masternode['StakingCanCancelHeight'] = int(nft['launcher_rec'].spent_block_index) + 1681920
+            json_masternode['StakingCanCancelHeight'] = int(nft['StakingData']['StakingHeight']) + 1681920
         if int(StakingData['StakingPeriod']) == 2:
-            json_masternode['StakingCanCancelHeight'] = int(nft['launcher_rec'].spent_block_index) + 3363840
+            json_masternode['StakingCanCancelHeight'] = int(nft['StakingData']['StakingHeight']) + 3363840
 
         json_masternode['ReceivedAddress'] = StakingData['ReceivedAddress']
         json_masternode['NodeName'] = StakingData['NodeName']
@@ -571,7 +569,7 @@ class MasterNodeManager:
         return result
 
     async def masternode_summary_json(self, args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
-        await self.masternode_wallet.sync_masternode()
+        # await self.masternode_wallet.sync_masternode()
         nfts = await self.get_all_masternodes()
         MasterNodeStakingAmount = 0
         MasterNodeCount = 0
@@ -584,10 +582,10 @@ class MasterNodeManager:
                 MasterNodeStakingAmount += StakingData['StakingAmount']
                 MasterNodeCount += 1
                 # print(StakingData)
-                # all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(decode_puzzle_hash(StakingAddress),False,160000)
+                # all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(decode_puzzle_hash(StakingAddress),False,2400000)
                 # print(all_staking_coins[0].coin.amount/100000000)
 
-        all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(decode_puzzle_hash("txcc124dcndk6hawzk729j6cu84dalqkcptx57j33dnm3y4csufnwkgsqdkq0aa"), False, 160000)
+        all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(decode_puzzle_hash("txcc124dcndk6hawzk729j6cu84dalqkcptx57j33dnm3y4csufnwkgsqdkq0aa"), False, 2400000)
         UnAssignCoin = 0
         for coin_record in all_staking_coins:
             UnAssignCoin += coin_record.coin.amount
@@ -603,12 +601,15 @@ class MasterNodeManager:
             pass
         if MasterNodeOnlineCount > MasterNodeCount:
             MasterNodeOnlineCount = MasterNodeCount
+
+        jsonResult = await self.masternode_mynode_json(args, wallet_client, fingerprint)
         result = {}
         result['MasterNodeCount'] = MasterNodeCount
         result['MasterNodeStakingAmount'] = int(MasterNodeStakingAmount / 100000000)
-        result['MasterNodeRewardHaveSentAmount'] = 0
         result['MasterNodeRewardPoolAmount'] = int(UnAssignCoin / 100000000)
+        result['MasterNodeRewardHaveSentAmount'] = 0
         result['MasterNodeOnlineCount'] = MasterNodeOnlineCount
+        result['MyNodeOnlineStatus'] = jsonResult['dictResult']['StakingRegisterMasterNodeOnline']
         return result
 
     async def masternode_summary(self, args: dict, wallet_client: WalletRpcClient, fingerprint: int) -> None:
@@ -1149,9 +1150,12 @@ class MasterNodeManager:
             MasterNodeIsOnline = requests.get(
                 'https://community.chivescoin.org/masternode/online_check.php?chain=' + selected_network + '&ReceivedAddress=' + get_staking_address_result['ReceivedAddress'] , data={}, timeout=2)
             MasterNodeIsOnline = str(MasterNodeIsOnline.text)
-            #MasterNodeIsOnline = "Online"
+            # MasterNodeIsOnline = "Online"
         except:
             pass
+
+        if isHaveRegisterNode is False:
+            MasterNodeIsOnline = "None"
 
         jsonResult = {}
         jsonResult['status'] = "success"
@@ -1239,14 +1243,43 @@ class MasterNodeManager:
                 # print("Waiting for block (30s)")
                 await asyncio.sleep(3)
 
-    async def get_all_masternodes(self) -> List:
-        launcher_ids = await self.masternode_wallet.get_all_nft_ids()
+    async def get_all_masternodes_from_blockchain(self) -> List:
+        all_nfts = await self.node_client.get_coin_records_by_puzzle_hash(LAUNCHER_PUZZLE_HASH)
         get_all_masternodes = []
-        for launcher_id in launcher_ids:
-            nft = await self.masternode_wallet.get_nft_by_launcher_id(hexstr_to_bytes(launcher_id))
-            StakingData = nft['StakingData']
-            if "StakingAmount" in StakingData and 'StakingPeriod' in StakingData and int(StakingData['StakingPeriod']) > 0 and int(StakingData['StakingAmount'] / self.mojo_per_unit) in self.allow_staking_amount:
-                get_all_masternodes.append(nft)
+        for cr in all_nfts:
+            nft = await self.masternode_wallet.get_nft_by_launcher_id(cr.coin.name())
+            if nft is not None:
+                StakingData = nft['StakingData']
+                if "StakingAmount" in StakingData and 'StakingPeriod' in StakingData and int(StakingData['StakingPeriod']) > 0 and int(StakingData['StakingAmount'] / self.mojo_per_unit) in self.allow_staking_amount:
+                    get_all_masternodes.append(nft)
+        print(nft)
+        return get_all_masternodes
+
+    async def get_all_masternodes(self) -> List:
+        get_all_masternodes = []
+        query = "SELECT * FROM masternode_list order by Height desc"
+        cursor = await self.masternode_wallet.db_connection.execute(query)
+        rows = await cursor.fetchall()
+        await cursor.close()
+        for row in rows:
+            if row is not None:
+                StakingData = {}
+                StakingData['launcher_id'] = row[0]
+                StakingData['StakingHeight'] = row[2]
+                StakingData['StakingAmount'] = row[3]
+                StakingData['StakingAddress'] = row[4]
+                StakingData['ReceivedAddress'] = row[5]
+                StakingData['NodeName'] = row[6]
+                StakingData['timestamp'] = row[10]
+                StakingData['StakingPeriod'] = row[13]
+                nft_item = {}
+                nft_item['launcher_id'] = row[0]
+                nft_item['launcher_rec'] = None
+                nft_item['nft_data'] = None
+                nft_item['StakingData'] = StakingData
+                StakingData = nft_item['StakingData']
+                if int(StakingData['StakingAmount'] / self.mojo_per_unit) in self.allow_staking_amount:
+                    get_all_masternodes.append(nft_item)
         return get_all_masternodes
 
     async def get_all_masternodes_count(self) -> List:
@@ -1267,6 +1300,10 @@ class MasterNodeManager:
         masternode_rewards_send = await self.masternode_wallet.masternode_rewards_send(primaryKey, nfts)
         return masternode_rewards_send
         # print(f"cancel_staking_coins:{cancel_staking_coins}")
+
+    async def create_account_and_address(self, prefix='xcc', HDDNumber=9699, addressNumber=5, mnemonicUserDefine='') -> List:
+        create_account_and_address = await self.masternode_wallet.create_account_and_address(prefix, HDDNumber, addressNumber, mnemonicUserDefine)
+        return create_account_and_address
 
     def encode_data(self, data, filename):
         from Crypto.Cipher import AES
@@ -1454,12 +1491,6 @@ class MasterNodeWallet:
         new_height = blockchain_state["peak"].height
         return new_height
 
-    async def filter_singletons(self, singletons: List):
-        # print(Path(DEFAULT_ROOT_PATH))
-        for cr in singletons:
-            await self.get_nft_by_launcher_id(cr.coin.name())
-        return (f"Updating {len(singletons)} Masternodes NFTs")
-
     async def get_nft_by_launcher_id(self, launcher_id: bytes32):
         eve_cr = await self.node_client.get_coin_records_by_parent_ids([launcher_id])
         assert len(eve_cr) > 0
@@ -1486,7 +1517,7 @@ class MasterNodeWallet:
                     try:
                         NftDataJson = json.loads(nft_data[1].decode("utf-8"))
                         # print(NftDataJson)
-                        if "ReceivedAddress" in NftDataJson and "StakingAddress" in NftDataJson and "StakingAmount" in NftDataJson and "NodeName" in NftDataJson:
+                        if NftDataJson is not None and "ReceivedAddress" in NftDataJson and "StakingAddress" in NftDataJson and "StakingAmount" in NftDataJson and "NodeName" in NftDataJson:
                             StakingData = await self.save_launcher(launcher_id, state[-1], eve_cr[0].spent_block_index, NftDataJson)
                             nft_item = {}
                             nft_item['launcher_id'] = launcher_id
@@ -1501,27 +1532,34 @@ class MasterNodeWallet:
 
     async def sync_masternode(self):
         all_nfts = await self.node_client.get_coin_records_by_puzzle_hash(LAUNCHER_PUZZLE_HASH)
-        return await self.filter_singletons(all_nfts)
+        for cr in all_nfts:
+            await self.get_nft_by_launcher_id(cr.coin.name())
+        return (f"Updating {len(all_nfts)} Masternodes NFTs")
 
     async def save_launcher(self, launcher_id, pk, Height, StakingData):
         if "StakingAddress" in StakingData and StakingData['StakingAddress'] is not None:
             all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(decode_puzzle_hash(StakingData['StakingAddress']), False)
             StakingAmount = 0
+            NodeLastReceivedTime = ''
             for coin_record in all_staking_coins:
                 amount = (coin_record.coin.amount / 100000000)
+                NodeLastReceivedTime = int(coin_record.timestamp)
                 if amount in self.allow_staking_amount:
                     StakingAmount += coin_record.coin.amount
         # print(f"StakingAmount:{StakingAmount}")
         # print(f"StakingAmount:{StakingData['StakingAddress']}")
+
         cursor = await self.db_connection.execute(
-            "INSERT OR REPLACE INTO masternode_list (launcher_id, owner_pk, Height, ReceivedAddress, StakingAddress, StakingAmount, NodeName) VALUES (?,?,?,?,?,?,?)", (
+            "INSERT OR REPLACE INTO masternode_list (launcher_id, owner_pk, Height, ReceivedAddress, StakingAddress, StakingAmount, NodeName, StakingCheckStatus, NodeLastReceivedTime) VALUES (?,?,?,?,?,?,?,?,?)", (
                 str(bytes(launcher_id).hex()),
                 str(bytes(pk).hex()),
                 int(Height),
                 str(StakingData['ReceivedAddress']),
                 str(StakingData['StakingAddress']),
                 int(StakingAmount),
-                str(StakingData['NodeName'])
+                str(StakingData['NodeName']),
+                str(StakingData['StakingPeriod']),
+                str(NodeLastReceivedTime)
             )
         )
         # print(f"save_launcher:{StakingData}")
@@ -1559,7 +1597,7 @@ class MasterNodeWallet:
         STAKING_ADDRESS = result['STAKING_ADDRESS_TEST']
         STAKING_PUZZLE = result['STAKING_PUZZLE_TEST']
         STAKING_PERIOD = 0
-        all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(STAKING_PUZZLE_HASH, False, 160000)
+        all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(STAKING_PUZZLE_HASH, False, 2400000)
         all_staking_coins_filter = None
         if all_staking_coins is not None and len(all_staking_coins) > 0:
             all_staking_coins_filter = []
@@ -1576,7 +1614,7 @@ class MasterNodeWallet:
             STAKING_ADDRESS = result['STAKING_ADDRESS_ONE_YEAR']
             STAKING_PUZZLE = result['STAKING_PUZZLE_ONE_YEAR']
             STAKING_PERIOD = 1
-            all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(STAKING_PUZZLE_HASH, False, 160000)
+            all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(STAKING_PUZZLE_HASH, False, 2400000)
             all_staking_coins_filter = None
             if all_staking_coins is not None and len(all_staking_coins) > 0:
                 all_staking_coins_filter = []
@@ -1593,7 +1631,7 @@ class MasterNodeWallet:
                 STAKING_ADDRESS = result['STAKING_ADDRESS_TWO_YEAR']
                 STAKING_PUZZLE = result['STAKING_PUZZLE_TWO_YEAR']
                 STAKING_PERIOD = 2
-                all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(STAKING_PUZZLE_HASH, False, 160000)
+                all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(STAKING_PUZZLE_HASH, False, 2400000)
                 all_staking_coins_filter = None
                 if all_staking_coins is not None and len(all_staking_coins) > 0:
                     all_staking_coins_filter = []
@@ -1733,7 +1771,7 @@ class MasterNodeWallet:
         # print(STAKING_ADDRESS)
         # print(STAKING_PUZZLE)
         # get all unspent staking coins
-        all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(STAKING_PUZZLE_HASH, False, 100000)
+        all_staking_coins = await self.node_client.get_coin_records_by_puzzle_hash(STAKING_PUZZLE_HASH, False, 2400000)
         # print(f"all_staking_coins:{all_staking_coins}")
         for coin_record in all_staking_coins:
             coin_record = await self.node_client.get_coin_record_by_name(coin_record.coin.name())
@@ -1766,58 +1804,59 @@ class MasterNodeWallet:
         return None
 
     async def masternode_mergecoin_by_fullnode(self, start_height=0, primaryKey: str = None, toAddress: str = None) -> Tuple[Coin, Program]:
-        get_staking_address = self.init_pk_address(10, primaryKey)
+        get_staking_address = self.init_pk_address(100, primaryKey)
         puzzle_hashes = []
         for k in self.key_dict.keys():
             puzzle_hashes.append(puzzle_for_pk(k).get_tree_hash())
             staking_coins = await self.node_client.get_coin_records_by_puzzle_hashes(
                 puzzle_hashes, include_spent_coins=False, start_height=start_height
             )
-        totalAmount = 0
-        coin_counter = 0
-        select_coins = []
-        for coin in staking_coins:
-            if coin.coin.amount < 50000000000:
-                synth_sk = calculate_synthetic_secret_key(self.key_dict[k], DEFAULT_HIDDEN_PUZZLE_HASH)
-                self.key_dict_synth_sk[bytes(synth_sk.get_g1())] = synth_sk
-                select_coins.append(coin.coin)
-                coin_counter += 1
-                totalAmount += coin.coin.amount
-                if coin_counter > 500:
-                    break
-        if toAddress is None:
-            toAddress = get_staking_address['first_address']
-        self.get_max_send_amount = totalAmount
+        print(f"\nTotal staking_coins:{len(staking_coins)}")
+        tempInsertListCoin = []
+        for i in range(10):
+            totalAmount = 0
+            coin_counter = 0
+            select_coins = []
+            for coin in staking_coins:
+                if coin.coin.amount < 500000000000000 and coin.coin.name() not in tempInsertListCoin:
+                    synth_sk = calculate_synthetic_secret_key(self.key_dict[k], DEFAULT_HIDDEN_PUZZLE_HASH)
+                    self.key_dict_synth_sk[bytes(synth_sk.get_g1())] = synth_sk
+                    select_coins.append(coin.coin)
+                    tempInsertListCoin.append(coin.coin.name())
+                    coin_counter += 1
+                    totalAmount += coin.coin.amount
+                    if coin_counter > 500:
+                        break
+            if toAddress is None:
+                toAddress = get_staking_address['first_address']
+            self.get_max_send_amount = totalAmount
 
-        print(f"\nReady to merge coins number: {len(select_coins)}\n")
-        Memos = "Merge coins"
-        if len(select_coins) == 0:
-            print("No small coin need to merge\n")
-            return None
-        spend_bundle = await self.generate_signed_transaction(
-            totalAmount, decode_puzzle_hash(toAddress), uint64(0), memos=[Memos], coins=select_coins
-        )
-        if spend_bundle is not None:
-            # print(f"res:{get_staking_address['first_puzzle_hash']}")
-            try:
-                res = await self.node_client.push_tx(spend_bundle)
-            except Exception as e:
-                print(e)
-                return str(e)
-            print(res)
-            if res["success"] == True and res["status"] == "SUCCESS":
-                tx_id = await self.get_tx_from_mempool(spend_bundle.name())
-                print(f"\nSend address: {toAddress}")
-                print(f"\nSend Tx: {tx_id}")
-                print(f"\nSend amount: {int(totalAmount/100000000)}")
-                print("")
-                res["tx_id"] = tx_id
-                return res
-            elif res["status"] == "PENDING":
-                print("PENDING")
-            else:
-                print(f"\nSend Coin Failed. res: {res}")
-                return res
+            print(f"\nReady to merge coins number: {len(select_coins)}\n")
+            Memos = "Merge coins"
+            if len(select_coins) == 0:
+                print("No small coin need to merge\n")
+                return None
+            spend_bundle = await self.generate_signed_transaction(
+                totalAmount, decode_puzzle_hash(toAddress), uint64(0), memos=[Memos], coins=select_coins
+            )
+            if spend_bundle is not None:
+                # print(f"res:{get_staking_address['first_puzzle_hash']}")
+                try:
+                    res = await self.node_client.push_tx(spend_bundle)
+                except Exception as e:
+                    print(e)
+                print(res)
+                if res["success"] == True and res["status"] == "SUCCESS":
+                    tx_id = await self.get_tx_from_mempool(spend_bundle.name())
+                    print(f"\nSend address: {toAddress}")
+                    print(f"\nSend Tx: {tx_id}")
+                    print(f"\nSend amount: {int(totalAmount/100000000)}")
+                    print("")
+                    res["tx_id"] = tx_id
+                elif res["status"] == "PENDING":
+                    print("PENDING")
+                else:
+                    print(f"\nSend Coin Failed. res: {res}")
         return None
 
     async def masternode_rewards_send(self, primaryKey: str = None, nfts=None) -> Tuple[Coin, Program]:
@@ -1894,7 +1933,7 @@ class MasterNodeWallet:
             totalAmount += coin.coin.amount
             if totalAmount > send_max_amount:
                 break
-        toAddress = 'txcc130mh2m5svk6kk784dc02auym978pepy9t9al680hcmj3cg8usc3qmee33k'
+        toAddress = 'xcc1dr0leqc48k0k3ul7386ulxppf8ru5rmqx6gjffdsdff0tgxj4wqssewhcj'
         self.get_max_send_amount = totalAmount
         Memos = "MasterNode".encode("utf-8")
         # primaries = []
@@ -1934,6 +1973,94 @@ class MasterNodeWallet:
             if mem_sb_name == sb_name:
                 return tx_id
         raise ValueError("No tx found in mempool. Check if confirmed")
+
+    async def create_account_and_address(self, prefix='xcc', HDDNumber=9699, addressNumber=5, mnemonicUserDefine=''):
+        mnemonicUserDefineArray = []
+        if (mnemonicUserDefine != ""):
+            # 使用指定的助记词语
+            mnemonic = mnemonicUserDefine
+        else:
+            # 产生新的助记词语
+            mnemonic = generate_mnemonic()
+
+        seed = mnemonic_to_seed(mnemonic, "")
+        seed_key = AugSchemeMPL.key_gen(seed)
+        masterPublicKey = seed_key.get_g1()
+        fingerprint = masterPublicKey.get_fingerprint()
+
+        RS = {}
+        RS['mnemonic'] = mnemonic
+        RS['seed'] = bytes(seed).hex()
+        RS['masterPrivateKey'] = bytes(seed_key).hex()
+        RS['masterPublicKey'] = bytes(masterPublicKey).hex()
+        RS['fingerprint'] = fingerprint
+        RS['prefix'] = prefix
+        RS['addressNumber'] = addressNumber
+        RS['HDDNumber'] = HDDNumber
+        RS['time'] = time.time()
+
+        PairKeysDict = {}
+        PairKeysDict2 = {}
+        PairKeysDict5 = {}
+        puzzlehashs = []
+        private_keys = []
+        public_keys = []
+        addresses = []
+
+        for i in range(0, addressNumber):
+            path = [12381, HDDNumber, 2, i]
+            child = _derive_path(seed_key, path)
+            child_puk = bytes(child.get_g1()).hex()
+            child_prk = bytes(child).hex()
+            puzzle = puzzle_for_pk(child.get_g1())
+            puzzle_hash = puzzle.get_tree_hash()
+            address = encode_puzzle_hash(puzzle_hash, prefix)
+            PairKeys = {}
+            PairKeys['index'] = i
+            PairKeys['private_key'] = child_prk
+            PairKeys['public_key'] = child_puk
+            PairKeys['puzzlehash'] = puzzle_hash.hex()
+            PairKeys['address'] = address
+            PairKeysDict[i] = PairKeys
+
+        RS['PairKeysDict'] = PairKeysDict
+
+        for i in range(0, addressNumber):
+            path = [12381, HDDNumber, 2, i]
+            child = _derive_path_unhardened(seed_key, path)
+            child_puk = bytes(child.get_g1()).hex()
+            child_prk = bytes(child).hex()
+            puzzle = puzzle_for_pk(child.get_g1())
+            puzzle_hash = puzzle.get_tree_hash()
+            address = encode_puzzle_hash(puzzle_hash, prefix)
+            PairKeys = {}
+            PairKeys['index'] = i
+            PairKeys['private_key'] = child_prk
+            PairKeys['public_key'] = child_puk
+            PairKeys['puzzlehash'] = puzzle_hash.hex()
+            PairKeys['address'] = address
+            PairKeysDict2[i] = PairKeys
+
+        RS['PairKeysDict2'] = PairKeysDict2
+
+        for i in range(0, addressNumber):
+            path = [12381, HDDNumber, 5, i]
+            child = _derive_path(seed_key, path)
+            child_puk = bytes(child.get_g1()).hex()
+            child_prk = bytes(child).hex()
+            puzzle = puzzle_for_pk(child.get_g1())
+            puzzle_hash = puzzle.get_tree_hash()
+            address = encode_puzzle_hash(puzzle_hash, prefix)
+            PairKeys = {}
+            PairKeys['index'] = i
+            PairKeys['private_key'] = child_prk
+            PairKeys['public_key'] = child_puk
+            PairKeys['puzzlehash'] = puzzle_hash.hex()
+            PairKeys['address'] = address
+            PairKeysDict5[i] = PairKeys
+
+        RS['PairKeysDict5'] = PairKeysDict5
+        return RS
 
     # ###############################################################################
     # 标准钱包功能

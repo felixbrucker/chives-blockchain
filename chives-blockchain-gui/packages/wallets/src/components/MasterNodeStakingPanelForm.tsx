@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Trans, t } from '@lingui/macro';
-import { Flex, Form, useOpenDialog,} from '@chives/core';
+import { Flex, Form, useOpenDialog, } from '@chives/core';
 import {
   useGetSyncStatusQuery,
   useTakeMasterNodeStakingMutation,
@@ -30,12 +30,14 @@ export default function MasterNodeStakingPanelForm(props: MasterNodeStakingPanel
   const { walletId } = props;
   const { data: MyCard } = useGetMasterNodeMyCardQuery({
     walletId,
+  }, {
+    pollingInterval: 20000,
   });
   const StakingAccountStatus: boolean = MyCard?.StakingAccountStatus;
   const stakingAmount: number = MyCard?.stakingAmount;
   const stakingPeriod: number = MyCard?.stakingPeriod;
 
-  console.log("MyCard=========MasterNodeStakingPanelForm=================", MyCard)
+  //console.log("MyCard=========MasterNodeStakingPanelForm=================", MyCard)
 
   const methods = useForm<FormData>({
     defaultValues: {
@@ -49,7 +51,7 @@ export default function MasterNodeStakingPanelForm(props: MasterNodeStakingPanel
   //const [takeMasterNodeRegister, { isLoading: isSendTransactionLoadingRegister }] = useTakeMasterNodeRegisterMutation();
 
   const { data: walletState, isLoading: isWalletSyncLoading } = useGetSyncStatusQuery({}, {
-    pollingInterval: 10000,
+    pollingInterval: 20000,
   });
 
   const { wallet } = useWallet(walletId);
@@ -59,7 +61,7 @@ export default function MasterNodeStakingPanelForm(props: MasterNodeStakingPanel
   }
 
   const syncing = !!walletState?.syncing;
-  
+
   //const navigate = useNavigate();
   //const [loading, setLoading] = useState<boolean>(false);
   //const showError = useShowError();
@@ -85,7 +87,7 @@ export default function MasterNodeStakingPanelForm(props: MasterNodeStakingPanel
       stakingAmount,
     });
 
-    const resultDialog = CreateWalletSendTransactionResultDialog({success: response['data']['success'], message: response['data']['message']});
+    const resultDialog = CreateWalletSendTransactionResultDialog({ success: response['data']['success'], message: response['data']['message'] });
 
     if (resultDialog) {
       await openDialog(resultDialog);
@@ -95,23 +97,23 @@ export default function MasterNodeStakingPanelForm(props: MasterNodeStakingPanel
     }
 
     methods.reset();
-    
+
   };
 
   return (
     //Not staking
     <Form methods={methods} onSubmit={handleSubmit}>
       <Flex flexDirection="column" gap={3}>
-        <MasterNodeStakingPanelStep1 step={step++} myCard={MyCard}/>
-        <MasterNodeStakingPanelStep2 step={step++} myCard={MyCard}/>
-        <MasterNodeStakingPanelStep3 step={step++} myCard={MyCard}/>
-        <MasterNodeStakingPanelStep4 step={step++} myCard={MyCard} syncing={syncing} walletId={walletId} isSendTransactionLoading={isSendTransactionLoading}/>  
+        <MasterNodeStakingPanelStep1 step={step++} myCard={MyCard} />
+        <MasterNodeStakingPanelStep2 step={step++} myCard={MyCard} />
+        <MasterNodeStakingPanelStep3 step={step++} myCard={MyCard} />
+        <MasterNodeStakingPanelStep4 step={step++} myCard={MyCard} syncing={syncing} walletId={walletId} isSendTransactionLoading={isSendTransactionLoading} />
         {StakingAccountStatus && (
-          <MasterNodeStakingPanelStep5 step={step++} myCard={MyCard} syncing={syncing} walletId={walletId}/>       
+          <MasterNodeStakingPanelStep5 step={step++} myCard={MyCard} syncing={syncing} walletId={walletId} />
         )}
       </Flex>
     </Form>
   );
-  
+
 
 }

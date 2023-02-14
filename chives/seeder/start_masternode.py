@@ -38,6 +38,7 @@ from chives.wallet.puzzles.p2_delegated_puzzle_or_hidden_puzzle import (  # stan
     calculate_synthetic_secret_key,
     DEFAULT_HIDDEN_PUZZLE_HASH,
 )
+from chives.masternode.masternode_manager import MasterNodeManager
 
 
 # See: https://bugs.python.org/issue29288
@@ -100,8 +101,10 @@ async def masternode_update_status_interval(selected_network, config) -> None:
                 result['space'] = blockchain_state["space"]
                 result['sub_slot_iters'] = blockchain_state["sub_slot_iters"]
 
-            node_client.close()
-            wallet_client.close()
+            if node_client:
+                node_client.close()
+            if wallet_client:
+                wallet_client.close()
 
             MasterNodeHeartBeat = json.dumps(result, indent=4, sort_keys=True)
 
@@ -115,8 +118,21 @@ async def masternode_update_status_interval(selected_network, config) -> None:
                 log.warning('ChunkedEncodingError -- please wait 600 seconds............................')
             except:
                 log.warning('Unfortunitely -- An Unknow Error Happened, Please wait 600 seconds............................')
-
+            # update masternode data from blockchain
+            try:
+                manager = MasterNodeManager()
+                await manager.connect()
+                checkSyncedStatus, checkSyncedStatusText, fingerprint = await manager.checkSyncedStatus()
+                await manager.chooseWallet(fingerprint)
+                # for item in checkSyncedStatusText:
+                #    print(item)
+                if checkSyncedStatus == 2:
+                    await manager.sync_masternode_from_blockchain()
+                await manager.close()
+            except:
+                pass
         except:
+            log.warning('Unfortunitely -- An Unknow except Happened, Please wait 600 seconds............................')
             pass
 
         log.warning("begin sleep ***** " * 5)
@@ -124,17 +140,19 @@ async def masternode_update_status_interval(selected_network, config) -> None:
 
 
 def main():
-    time.sleep(60)
-    config = load_config_cli(DEFAULT_ROOT_PATH, "config.yaml", "seeder")
-    selected_network = config["selected_network"]
-    root_path = DEFAULT_ROOT_PATH
-    net_config = load_config(root_path, "config.yaml")
-    config = net_config["timelord_launcher"]
-    initialize_logging("masternode", config["logging"], DEFAULT_ROOT_PATH)
-
-    log = logging.getLogger(__name__)
-
-    return asyncio.run(masternode_update_status_interval(selected_network, config))
+    try:
+        config = load_config_cli(DEFAULT_ROOT_PATH, "config.yaml", "seeder")
+        selected_network = config["selected_network"]
+        root_path = DEFAULT_ROOT_PATH
+        net_config = load_config(root_path, "config.yaml")
+        config = net_config["timelord_launcher"]
+        initialize_logging("masternode", config["logging"], DEFAULT_ROOT_PATH)
+        log = logging.getLogger(__name__)
+        asyncio.run(masternode_update_status_interval(selected_network, config))
+    except:
+        log.warning(
+            'Unfortunitely -- An Unknow except Happened in main function, Please wait 600 seconds............................')
+        pass
 
 
 if __name__ == "__main__":

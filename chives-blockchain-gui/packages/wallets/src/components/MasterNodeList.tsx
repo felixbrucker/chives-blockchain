@@ -180,7 +180,7 @@ export default function MasterNodeList(props: Props) {
     pageChange,
   } = useWalletMasterNodeLists(walletId, 10, 0, 'RELEVANCE');
 
-  
+
 
   const feeUnit = useCurrencyCode();
   const [getOfferRecord] = useGetOfferRecordMutation();
