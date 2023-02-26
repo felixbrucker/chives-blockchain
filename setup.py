@@ -34,6 +34,7 @@ dependencies = [
     "typing-extensions==4.0.1",  # typing backports like Protocol and TypedDict
     "zstd==1.5.0.4",
     "packaging==21.0",
+    "requests==2.28.2"
 ]
 
 upnp_dependencies = [
