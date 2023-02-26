@@ -811,7 +811,7 @@ async def print_balances(args: dict, wallet_client: WalletRpcClient, fingerprint
                 print(f"{indent}{'-Asset ID:'.ljust(23)} {asset_id}")
             print(f"{indent}{'-Wallet ID:'.ljust(23)} {wallet_id}")
 
-    await masternode_mynode(args, wallet_client, fingerprint)
+    # await masternode_mynode(args, wallet_client, fingerprint)
 
     print(" ")
     trusted_peers: Dict = config["wallet"].get("trusted_peers", {})
