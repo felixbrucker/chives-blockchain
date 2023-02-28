@@ -281,7 +281,7 @@ class RpcServer:
                     f"wss://{self_hostname}:{daemon_port}",
                     autoclose=True,
                     autoping=True,
-                    heartbeat=60,
+                    heartbeat=300,
                     ssl_context=self.ssl_client_context,
                     max_msg_size=max_message_size,
                 )
