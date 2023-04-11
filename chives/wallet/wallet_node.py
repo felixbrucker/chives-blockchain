@@ -531,6 +531,8 @@ class WalletNode:
           missing transactions, so we don't need to rollback
         """
 
+        min_height = max(0, target_height - self.constants.EPOCH_BLOCKS * 30 * 3)
+
         def is_new_state_update(cs: CoinState) -> bool:
             if cs.spent_height is None and cs.created_height is None:
                 return True
@@ -560,7 +562,7 @@ class WalletNode:
             ph_chunks: Iterator[List[bytes32]] = chunks(all_puzzle_hashes, 1000)
             for chunk in ph_chunks:
                 ph_update_res: List[CoinState] = await subscribe_to_phs(
-                    [p for p in chunk if p not in already_checked_ph], full_node, 0
+                    [p for p in chunk if p not in already_checked_ph], full_node, min_height
                 )
                 ph_update_res = list(filter(is_new_state_update, ph_update_res))
                 if not await self.receive_state_from_peer(ph_update_res, full_node, update_finished_height=True):
@@ -581,19 +583,19 @@ class WalletNode:
         # The number of coin id updates are usually going to be significantly less than ph updates, so we can
         # sync from 0 every time.
         continue_while = True
-        all_coin_ids: List[bytes32] = await self.get_coin_ids_to_subscribe(0)
+        all_coin_ids: List[bytes32] = await self.get_coin_ids_to_subscribe(min_height)
         already_checked_coin_ids: Set[bytes32] = set()
         while continue_while:
             one_k_chunks = chunks(all_coin_ids, 1000)
             for chunk in one_k_chunks:
-                c_update_res: List[CoinState] = await subscribe_to_coin_updates(chunk, full_node, 0)
+                c_update_res: List[CoinState] = await subscribe_to_coin_updates(chunk, full_node, min_height)
 
                 if not await self.receive_state_from_peer(c_update_res, full_node):
                     # If something goes wrong, abort sync
                     return
                 already_checked_coin_ids.update(chunk)
 
-            all_coin_ids = await self.get_coin_ids_to_subscribe(0)
+            all_coin_ids = await self.get_coin_ids_to_subscribe(min_height)
             continue_while = False
             for coin_id in all_coin_ids:
                 if coin_id not in already_checked_coin_ids:
