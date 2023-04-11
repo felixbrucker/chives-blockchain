@@ -531,7 +531,7 @@ class WalletNode:
           missing transactions, so we don't need to rollback
         """
 
-        min_height = max(0, target_height - self.constants.EPOCH_BLOCKS * 30 * 3)
+        min_height = max(0, target_height - self.constants.EPOCH_BLOCKS)
 
         def is_new_state_update(cs: CoinState) -> bool:
             if cs.spent_height is None and cs.created_height is None:
